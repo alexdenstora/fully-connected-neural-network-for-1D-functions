@@ -19,13 +19,14 @@ class SimpleCurveData(torch.utils.data.Dataset):
 
   def __init__(self):
     self.x_data = torch.arange(-2.5,2.5,0.001).unsqueeze(1)
-    self.y_data = 
+    self.y_data = torch.max(2 * self.x_data, 3 * torch.sin(5 * self.x_data) + self.x_data ** 2) #TODO: set y = the computation of f(x) = max(2x, 3sin(5x) + x^2)
 
   def __len__(self):
     return self.x_data.shape[0]
 
   def __getitem__(self, i):
-    #TODO
+    #TODO return the it'th x, y pair
+    return self.x_data[i], self.y_data[i]
 
 ######################################
 # Q2 Feed Forward Neural Network
