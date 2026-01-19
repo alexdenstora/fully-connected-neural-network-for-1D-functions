@@ -42,11 +42,6 @@ class FeedForwardNetwork(nn.Module):
     # append another ReLU Linear layer
     self.layers.append(activation())
     self.layers.append(nn.Linear(layer_widths[-1], output_dim))
-    #print(self.layers)
-    # for i in self.layers:
-    #   print(type(i))
-
-
 
   def forward(self, x):
     #TODO feed the input through the layers and return the output
@@ -64,7 +59,27 @@ class FeedForwardNetwork(nn.Module):
 
 def train(model, dataloader):
   # TODO
-  pass
+  # instantiate optimizer and loss functions
+  optimizer = torch.optim.Adam(model.parameters(), lr=0.003)
+  loss_fn = torch.nn.MSELoss()
+
+  max_epochs = 99
+  for i in range(max_epochs):
+    if i % 20 == 0: # displaying predictions to visualize model
+      plotPredictions(model, dataloader, i)
+
+    for batch in dataloader:
+      optimizer.zero_grad() # zero gradients
+      inputs,targets = batch # unpack batch
+      outputs = model(inputs) # run batch through model
+      loss = loss_fn(outputs, targets) # calculate loss
+      loss.backward() # backpropagate gradient of the loss to model params
+      optimizer.step() # take a step of the optimizer
+
+  plotPredictions(model, dataloader, max_epochs) # plot final epoch results
+
+      
+
 
 def plotPredictions(model, dataloader, epoch, save_fig=False):
   dataset = dataloader.dataset
