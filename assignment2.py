@@ -33,15 +33,14 @@ class FeedForwardNetwork(nn.Module):
     #TODO
     # create a list to store the network layers
     self.layers = nn.ModuleList()
-    # for each layer width i initialize and append a linear transformation as well as an activation function to layers
-    self.layers.append(nn.Linear(input_dim, layer_widths[0]))
-    for i in range(1, len(layer_widths) - 1): # skip first and last layer
-      self.layers.append(activation()) # append a ReLU
-      self.layers.append(nn.Linear(layer_widths[i - 1], layer_widths[i]))
-
-    # append another ReLU Linear layer
-    self.layers.append(activation())
-    self.layers.append(nn.Linear(layer_widths[-1], output_dim))
+    # for each layer_width i initialize and append a linear and activation function to list of layers
+    input = input_dim # set first input
+    for i in range(len(layer_widths)):
+      # append linear layer where in = layer_widths[i - 1], out = layer_widths[i]
+      self.layers.append(nn.Linear(input, layer_widths[i])) 
+      self.layers.append(activation()) # append activation layer
+      input = layer_widths[i] # set input_dim as current layer
+    self.layers.append(nn.Linear(layer_widths[-1], output_dim)) # append final Linear layer
 
   def forward(self, x):
     #TODO feed the input through the layers and return the output
@@ -133,7 +132,7 @@ if __name__ == "__main__":
     ######################################
 
     # Build our network
-    layer_widths = [64]
+    layer_widths = [64, 128] #64 64 64 Loss = 0.192
     model = FeedForwardNetwork(1, layer_widths, 1, activation=nn.ReLU)
 
     train(model, dataloader)
