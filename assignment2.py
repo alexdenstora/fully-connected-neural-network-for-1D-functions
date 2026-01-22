@@ -36,8 +36,8 @@ class FeedForwardNetwork(nn.Module):
     # for each layer_width i initialize and append a linear and activation function to list of layers
     input = input_dim # set first input
     for i in range(len(layer_widths)):
-      # append linear layer where in = layer_widths[i - 1], out = layer_widths[i]
-      self.layers.append(nn.Linear(input, layer_widths[i])) 
+      # append linear layer where in = previous layers output_dims, out = layer_widths[i]
+      self.layers.append(nn.Linear(input, layer_widths[i]))
       self.layers.append(activation()) # append activation layer
       input = layer_widths[i] # set input_dim as current layer
     self.layers.append(nn.Linear(layer_widths[-1], output_dim)) # append final Linear layer
@@ -60,11 +60,12 @@ def train(model, dataloader):
   # TODO
   # instantiate optimizer and loss functions
   optimizer = torch.optim.Adam(model.parameters(), lr=0.003)
+  scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
   loss_fn = torch.nn.MSELoss()
 
   max_epochs = 99
   for i in range(max_epochs):
-    if i % 20 == 0: # displaying predictions to visualize model
+    if i % 5 == 0: # displaying predictions to visualize model
       plotPredictions(model, dataloader, i)
 
     for batch in dataloader:
@@ -74,11 +75,10 @@ def train(model, dataloader):
       loss = loss_fn(outputs, targets) # calculate loss
       loss.backward() # backpropagate gradient of the loss to model params
       optimizer.step() # take a step of the optimizer
+    scheduler.step()
+
 
   plotPredictions(model, dataloader, max_epochs) # plot final epoch results
-
-      
-
 
 def plotPredictions(model, dataloader, epoch, save_fig=False):
   dataset = dataloader.dataset
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     ######################################
 
     # Build our network
-    layer_widths = [64, 128] #64 64 64 Loss = 0.192
+    layer_widths = [32, 100, 128, 64, 128, 64, 32] #64 128, Loss = 0.008, 32, 100, 128, 64, 128, 64, 32, Loss = 0.004
     model = FeedForwardNetwork(1, layer_widths, 1, activation=nn.ReLU)
 
     train(model, dataloader)
